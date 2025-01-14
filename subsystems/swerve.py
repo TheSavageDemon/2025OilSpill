@@ -332,6 +332,18 @@ class SwerveSubsystem(StateSubsystem, swerve.SwerveDrivetrain, ABC):
         if not utils.is_simulation():
             self._add_vision_measurements()
 
+
+        
+        LimelightHelpers.set_robot_orientation("", self.get_state().pose.rotation().degrees(), 0, 0, 0, 0, 0)
+        pose_estimate = LimelightHelpers.get_botpose_estimate_wpiblue_megatag2("")
+        if self.pigeon2.get_angular_velocity_z_world().value > 720:
+            doRejectUpdate = True
+        if pose_estimate.tag_count == 0:
+            doRejectUpdate = True
+        if not doRejectUpdate:
+            self.set_vision_measurement_std_devs((.6, .6, 999999))
+            self.add_vision_measurement(pose_estimate.pose, pose_estimate.timestamp_seconds)
+
     def _add_vision_measurements(self):
         LimelightHelpers.set_robot_orientation(
             "",

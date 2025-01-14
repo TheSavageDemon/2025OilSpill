@@ -3,6 +3,7 @@ import commands2.button
 import commands2.cmd
 from commands2.sysid import SysIdRoutine
 from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.path import PathConstraints, PathPlannerPath
 from phoenix6 import SignalLogger, swerve
 from wpilib import DriverStation, SmartDashboard
 from wpimath.geometry import Rotation2d
@@ -92,6 +93,45 @@ class RobotContainer:
         self._driver_controller.leftBumper().onTrue(
             self.drivetrain.runOnce(lambda: self.drivetrain.seed_field_centric())
         )
+
+
+
+        commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= 75) &  self._driver_controller.leftBumper().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral K"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= 75) &  self._driver_controller.y().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= 75) &  self._driver_controller.x().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral C"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= 75) &  self._driver_controller.a().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral E"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= 75) &  self._driver_controller.b().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral G"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= 75) &  self._driver_controller.rightBumper().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral I"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+
+        commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= 75) &  self._driver_controller.leftBumper().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral L"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= 75) &  self._driver_controller.y().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral B"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= 75) &  self._driver_controller.x().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral D"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= 75) &  self._driver_controller.a().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral F"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+        commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= 75) &  self._driver_controller.b().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral J"), PathConstraints(1, 1, 1, 1, unlimited=False))
+        )
+
+
 
         self.drivetrain.register_telemetry(
             lambda state: self._robot_state.log_swerve_state(state)
