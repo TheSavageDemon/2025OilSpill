@@ -7,5 +7,4 @@ ctre_sim/
 tests/ctre_sim/
 logs/*
 *.wpilog
-__pycache__/
 /.wpilib/wpilib_preferences.json
