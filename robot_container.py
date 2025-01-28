@@ -5,7 +5,7 @@ from commands2.sysid import SysIdRoutine
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.path import PathConstraints, PathPlannerPath
 from phoenix6 import SignalLogger, swerve
-from wpilib import DriverStation, SmartDashboard
+from wpilib import DataLogManager, DriverStation, SmartDashboard
 from wpimath.geometry import Rotation2d
 from wpimath.units import rotationsToRadians
 
@@ -26,7 +26,7 @@ class RobotContainer:
 
         self._driver_controller = commands2.button.CommandXboxController(0)
         self.path_constraints = PathConstraints(1, 1, 1, 1, unlimited=False)
-        self.trigger_margin = .75
+        self._trigger_margin = .75
 
         self.drivetrain = TunerConstants.create_drivetrain()
         self.superstructure = Superstructure(self.drivetrain)
@@ -89,6 +89,7 @@ class RobotContainer:
             )
         )
 
+
         (self._driver_controller.back() & self._driver_controller.y()).onTrue(commands2.InstantCommand(lambda: SignalLogger.start())).whileTrue(
             self.drivetrain.sys_id_dynamic(SysIdRoutine.Direction.kForward).onlyIf(lambda: not DriverStation.isFMSAttached())
         )
@@ -107,19 +108,23 @@ class RobotContainer:
         )
 
         path_state = "DEFAULT"
-        if self._driver_controller.getLeftTriggerAxis() >= self.trigger_margin and self._driver_controller.getRightTriggerAxis() >= self.trigger_margin:
+        if self._driver_controller.getLeftTriggerAxis() >= self._trigger_margin and self._driver_controller.getRightTriggerAxis() >= self._trigger_margin:
             path_state = "CORALSTATION"
-        elif self._driver_controller.getLeftTriggerAxis() >= self.trigger_margin:
+        elif self._driver_controller.getLeftTriggerAxis() >= self._trigger_margin:
             path_state = "LEFT"
-        elif self._driver_controller.getRightTriggerAxis() >= self.trigger_margin:
+        elif self._driver_controller.getRightTriggerAxis() >= self._trigger_margin:
             path_state = "RIGHT"
+        SmartDashboard.putString("path state", path_state)
+
+        self._driver_controller.y().whileTrue(
+            AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), self.path_constraints)
+        )
+        
 
 
         match path_state:
             case "LEFT":
-                self._driver_controller.y().whileTrue(
-                    AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), self.path_constraints)
-                )
+                
                 self._driver_controller.x().whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral C"), self.path_constraints)
                 )
