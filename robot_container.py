@@ -13,6 +13,11 @@ from generated.tuner_constants import TunerConstants
 from robot_state import RobotState
 from subsystems.superstructure import Superstructure
 
+from subsystems.climber import ClimberSubsystem
+from subsystems.pivot import PivotSubsystem
+from subsystems.intake import IntakeSubsystem
+from subsystems.elevator import ElevatorSubsystem
+
 
 class RobotContainer:
 
@@ -25,19 +30,27 @@ class RobotContainer:
         )  # 3/4 of a rotation per second max angular velocity
 
         self._driver_controller = commands2.button.CommandXboxController(0)
+
+        self._function_controller = commands2.button.CommandXboxController(1)
         self.path_constraints = PathConstraints(1, 1, 1, 1, unlimited=False)
-        self._trigger_margin = .75
+        self.trigger_margin = .75
 
         self.drivetrain = TunerConstants.create_drivetrain()
-        self.superstructure = Superstructure(self.drivetrain)
+
+        self.climber = ClimberSubsystem()
+        self.pivot = PivotSubsystem()
+        self.intake = IntakeSubsystem()
+        self.elevator = ElevatorSubsystem()
+
+        self.superstructure = Superstructure(self.drivetrain, self.pivot, self.elevator)
         self._robot_state = RobotState(self.drivetrain)
 
         # Setting up bindings for necessary control of the swerve drive platform
         self._field_centric = (
             swerve.requests.FieldCentric()
-            .with_deadband(self._max_speed * 0.1)
+            .with_deadband(self._max_speed * 0.01)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.1
+                self._max_angular_rate * 0.01
             )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
@@ -45,9 +58,9 @@ class RobotContainer:
         )
         self._robot_centric = (
             swerve.requests.RobotCentric()
-            .with_deadband(self._max_speed * 0.1)
+            .with_deadband(self._max_speed * 0.01)
             .with_rotational_deadband(
-                self._max_angular_rate * 0.1
+                self._max_angular_rate * 0.01
             )  # Add a 10% deadband
             .with_drive_request_type(
                 swerve.SwerveModule.DriveRequestType.OPEN_LOOP_VOLTAGE
@@ -122,9 +135,11 @@ class RobotContainer:
         
 
 
+
         match path_state:
             case "LEFT":
                 
+
                 self._driver_controller.x().whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral C"), self.path_constraints)
                 )
@@ -185,7 +200,15 @@ class RobotContainer:
                 )
             )
         )
-
+        self._function_controller.y().whileTrue(
+            self.climber.set_desired_state_command(self.climber.SubsystemState.CLIMB_POSITIVE)).onFalse(
+            self.climber.set_desired_state_command(self.climber.SubsystemState.STOP)
+        )
+        
+        self._function_controller.x().whileTrue(
+            self.climber.set_desired_state_command(self.climber.SubsystemState.CLIMB_NEGATIVE)).onFalse(
+            self.climber.set_desired_state_command(self.climber.SubsystemState.STOP)
+        )
         self.drivetrain.register_telemetry(
             lambda state: self._robot_state.log_swerve_state(state)
         )
