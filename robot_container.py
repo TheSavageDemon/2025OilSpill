@@ -126,12 +126,13 @@ class RobotContainer:
         elif self._driver_controller.getRightTriggerAxis() >= self.trigger_margin:
             path_state = "RIGHT"
 
+        self._driver_controller.y().whileTrue(
+                    AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), self.path_constraints)
+                )
 
         match path_state:
             case "LEFT":
-                self._driver_controller.y().whileTrue(
-                    AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), self.path_constraints)
-                )
+                
                 self._driver_controller.x().whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral C"), self.path_constraints)
                 )
