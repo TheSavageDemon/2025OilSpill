@@ -18,7 +18,7 @@ from pathplannerlib.util.swerve import SwerveSetpointGenerator, SwerveSetpoint
 from phoenix6 import swerve, units, utils, SignalLogger
 from phoenix6.swerve.requests import ApplyRobotSpeeds
 from phoenix6.swerve.swerve_drivetrain import DriveMotorT, SteerMotorT, EncoderT
-from wpilib import DriverStation, Notifier, RobotController, DataLogManager
+from wpilib import DriverStation, Notifier, RobotController, DataLogManager, SmartDashboard
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import ChassisSpeeds
@@ -256,6 +256,8 @@ class SwerveSubsystem(Subsystem, swerve.SwerveDrivetrain):
         See the documentation of swerve.requests.SysIdSwerveRotation for info on importing the log to SysId.
         """
 
+        self._use_megatag_2 = False
+
         self._sys_id_routine_to_apply = self._sys_id_routine_translation
         """The SysId routine to test"""
 
@@ -290,6 +292,7 @@ class SwerveSubsystem(Subsystem, swerve.SwerveDrivetrain):
             ),
             config,
             lambda: (DriverStation.getAlliance() or DriverStation.Alliance.kBlue) == DriverStation.Alliance.kRed, # If getAlliance() is None (maybe the robot doesn't know its alliance yet), it defaults to blue. This returns True if the alliance is red, and False otherwise
+            self
         )
 
         # create set point generator
@@ -352,9 +355,14 @@ class SwerveSubsystem(Subsystem, swerve.SwerveDrivetrain):
                 )
                 self._has_applied_operator_perspective = True
 
+        if DriverStation.isEnabled():
+            self._use_megatag_2 = True
+        
+
         # if we are not in simulation, add vision measurement
         if not utils.is_simulation():
             self._add_vision_measurements()
+        SmartDashboard.putBoolean("_use_megatag_2", self._use_megatag_2)
 
     def _add_vision_measurements(self) -> None:
         """
@@ -372,14 +380,17 @@ class SwerveSubsystem(Subsystem, swerve.SwerveDrivetrain):
         )
 
         # get botpose estimate with origin on blue side of field
-        mega_tag2 = LimelightHelpers.get_botpose_estimate_wpiblue_megatag2("")
+        if self._use_megatag_2:
+            vision_estimate = LimelightHelpers.get_botpose_estimate_wpiblue_megatag2("")
+        else:
+            vision_estimate = LimelightHelpers.get_botpose_estimate_wpiblue("")
         
         #if we are spinning slower than 720 deg/sec and we see tags
-        if abs(self.pigeon2.get_angular_velocity_z_world().value) <= 720 and mega_tag2.tag_count > 0:
+        if abs(self.pigeon2.get_angular_velocity_z_world().value) <= 720 and vision_estimate.tag_count > 0:
             
             # set and add vision measurement
             self.set_vision_measurement_std_devs((0.7, 0.7, 9999999))
-            self.add_vision_measurement(mega_tag2.pose, utils.fpga_to_current_time(mega_tag2.timestamp_seconds))
+            self.add_vision_measurement(vision_estimate.pose, utils.fpga_to_current_time(vision_estimate.timestamp_seconds))
     
     def _start_sim_thread(self) -> None:
         """
