@@ -126,59 +126,53 @@ class RobotContainer:
         elif self._driver_controller.getRightTriggerAxis() >= self.trigger_margin:
             path_state = "RIGHT"
 
-        self._driver_controller.y().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.y()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), self.path_constraints)
                 )
-
-        match path_state:
-            case "LEFT":
-                
-                self._driver_controller.x().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.x()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral C"), self.path_constraints)
                 )
-                self._driver_controller.a().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.a()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral E"), self.path_constraints)
                 )
-                self._driver_controller.b().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.b()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral G"), self.path_constraints)
                 )
-                self._driver_controller.rightBumper().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.rightBumper()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral I"), self.path_constraints)
                 )
-                self._driver_controller.leftBumper().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.leftBumper()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral K"), self.path_constraints)
-                )
-            case "RIGHT":
-                self._driver_controller.y().whileTrue(
+                )  
+
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & self._driver_controller.y()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral B"), self.path_constraints)
                 )
-                self._driver_controller.x().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & self._driver_controller.x()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral D"), self.path_constraints)
                 )
-                self._driver_controller.a().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & self._driver_controller.a()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral F"), self.path_constraints)
                 )
-                self._driver_controller.b().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & self._driver_controller.b()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral H"), self.path_constraints)
                 )
-                self._driver_controller.b().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & self._driver_controller.rightBumper()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral J"), self.path_constraints)
                 )
-                self._driver_controller.leftBumper().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & self._driver_controller.leftBumper()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral L"), self.path_constraints)
                 )
-            case "CORALSTATION":
-                self._driver_controller.leftBumper().whileTrue(
+        
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.leftBumper()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral Station 1"), self.path_constraints)
                 )
-                self._driver_controller.rightBumper().whileTrue(
+        (commands2.button.Trigger(lambda: self._driver_controller.getRightTriggerAxis() >= .75) & commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.rightBumper()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral Station 2"), self.path_constraints)
                 )
-            case _:
-                pass
+
 
         
-
         self._driver_controller.rightBumper().whileTrue(
             self.drivetrain.apply_request(
                 lambda: (
