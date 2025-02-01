@@ -118,13 +118,7 @@ class RobotContainer:
             self.drivetrain.runOnce(lambda: self.drivetrain.seed_field_centric())
         )
 
-        path_state = "DEFAULT"
-        if self._driver_controller.getLeftTriggerAxis() >= self.trigger_margin and self._driver_controller.getRightTriggerAxis() >= self.trigger_margin:
-            path_state = "CORALSTATION"
-        elif self._driver_controller.getLeftTriggerAxis() >= self.trigger_margin:
-            path_state = "LEFT"
-        elif self._driver_controller.getRightTriggerAxis() >= self.trigger_margin:
-            path_state = "RIGHT"
+
 
         (commands2.button.Trigger(lambda: self._driver_controller.getLeftTriggerAxis() >= .75) & self._driver_controller.y()).whileTrue(
                     AutoBuilder.pathfindThenFollowPath(PathPlannerPath.fromPathFile("Coral A"), self.path_constraints)
